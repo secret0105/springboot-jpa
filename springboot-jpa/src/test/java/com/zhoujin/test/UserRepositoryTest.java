@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.data.domain.Sort.by;
+import static org.springframework.data.domain.Sort.unsorted;
 
 /**
  * 测试类
@@ -224,5 +225,24 @@ public class UserRepositoryTest {
             System.out.println(u);
         }
 
+    }
+
+    /**
+     *
+     * 使用JAPRepository接口排序
+     *
+     */
+    @Test
+    public void testJpaSort(){
+        Order order = new Order(Direction.DESC, "age");
+
+        Sort sort = Sort.by(order);
+
+        List<User> list = userRepository.findAll(sort);
+
+        for (User u:list
+             ) {
+            System.out.println(u);
+        }
     }
 }
