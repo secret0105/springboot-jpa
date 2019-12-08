@@ -10,10 +10,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.*;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,18 +49,21 @@ public class UserRepositoryTest {
     @Autowired
     private UserRepositoryPageAndSorting pageAndSorting;
 
+    @Autowired
+    private UserRepositorySpecification specification;
+
     /**
      * 简单的插入操作
      *
      */
-//    @Test
-//    public void saveOne(){
-//        User u = new User();
-//        u.setName("zz");
-//        u.setAge(12);
-//        System.out.println(u);
-//        userRepository.save(u);
-//    }
+    @Test
+    public void saveOne(){
+        User u = new User();
+        u.setName("zz");
+        u.setAge(12);
+        System.out.println(u);
+        userRepository.save(u);
+    }
 
 
     /**
@@ -242,6 +251,102 @@ public class UserRepositoryTest {
 
         for (User u:list
              ) {
+            System.out.println(u);
+        }
+    }
+
+    /**
+     *
+     * 单条件查询
+     */
+    @Test
+    public void testSpe(){
+
+        //Specification封装查询条件
+        Specification<User> spec = new Specification<User>() {
+
+            /**
+             *
+             *
+             * @param root 查询对象属性的封装
+             * @param query 封装了我们要执行的查询中各个部分的信息
+             * @param criteriaBuilder 查询条件的构造器，定义不同的查询条件
+             * @return
+             */
+            @Override
+            public Predicate toPredicate(Root<User> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+                Predicate predicate = criteriaBuilder.equal(root.get("name"), "王五");
+
+                return predicate;
+            }
+        };
+
+        List<User> list = specification.findAll(spec);
+        for (User u: list
+             ) {
+            System.out.println(u);
+        }
+
+    }
+
+    /**
+     *
+     * 多条件查询
+     */
+    @Test
+    public void testSpecMuilty(){
+
+
+        Specification<User> spec = new Specification<User>() {
+            @Override
+            public Predicate toPredicate(Root<User> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+
+                List<Predicate> list = new ArrayList();
+                Predicate predicate = criteriaBuilder.equal(root.get("name"), "李四");
+                Predicate predicate1 = criteriaBuilder.equal(root.get("age"), 16);
+                list.add(predicate);
+                list.add(predicate1);
+
+                Predicate[] pre = new Predicate[list.size()];
+                //toArray()可返回泛型的类型
+                //and()方法里面时可变参数，类型是Predicate，使用数组
+                return criteriaBuilder.and(list.toArray(pre));
+
+
+            }
+        };
+        List<User> list = specification.findAll(spec);
+        for (User u:list
+             ) {
+            System.out.println(u);
+        }
+    }
+
+    /**
+     *
+     * 多条件查询 简写
+     */
+    @Test
+    public void testSpecSimple(){
+
+
+        Specification<User> spec = new Specification<User>() {
+            @Override
+            public Predicate toPredicate(Root<User> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+                //假设条件为where name = "lsi" and age =16 or id =2
+
+                //and()方法里面时可变参数，类型是Predicate
+                //先写and 在写or
+
+                return criteriaBuilder.or(criteriaBuilder.and(criteriaBuilder.equal(root.get("name"),"李四"),
+                        criteriaBuilder.equal(root.get("age"),16)),criteriaBuilder.equal(root.get("id"),3));
+
+
+            }
+        };
+        List<User> list = specification.findAll(spec);
+        for (User u:list
+                ) {
             System.out.println(u);
         }
     }
