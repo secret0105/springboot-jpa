@@ -20,6 +20,19 @@ public class User {
     @Column(name = "name")
     private String name;
 
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    @ManyToOne
+    //维护外键
+    @JoinColumn(name = "role_id")
+    private Role role;
+
     //get &  set 都可省略
 
     public Long getId() {
