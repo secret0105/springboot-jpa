@@ -28,7 +28,7 @@ public class User {
         this.role = role;
     }
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     //维护外键
     @JoinColumn(name = "role_id")
     private Role role;

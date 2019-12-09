@@ -25,7 +25,7 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "roleid")
 
-    private Integer roleid;
+    private Long roleid;
 
     @Column(name = "rolename")
     private String rolename;
@@ -33,11 +33,11 @@ public class Role {
     @OneToMany(mappedBy = "role")
     private Set<User> users = new HashSet<>();
 
-    public Integer getRoleid() {
+    public Long getRoleid() {
         return roleid;
     }
 
-    public void setRoleid(Integer roleid) {
+    public void setRoleid(Long roleid) {
         this.roleid = roleid;
     }
 
